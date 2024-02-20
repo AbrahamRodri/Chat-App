@@ -1,5 +1,5 @@
-import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
+import User from "../models/user.model.js";
 import generateTokenAndSetCookie from "../utils/generateToken.js";
 
 export const signup = async (req, res) => {
@@ -55,7 +55,7 @@ export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
-    const isPasswordCorrect = bcrypt.compare(password, user?.password || "");
+    const isPasswordCorrect = await bcrypt.compare(password, user?.password || "");
 
     if (!user || !isPasswordCorrect) {
       return res.status(400).json({ error: "Invalid password or username" });
@@ -64,10 +64,10 @@ export const login = async (req, res) => {
     generateTokenAndSetCookie(user._id, res);
 
     res.status(200).json({
-      _id: User._id,
-      fullName: User.fullName,
-      username: User.username,
-      profilePic: User.profilePic,
+      _id: user._id,
+      fullName: user.fullName,
+      username: user.username,
+      profilePic: user.profilePic,
     });
   } catch (error) {
     console.log("Error in login controller", error.message);
